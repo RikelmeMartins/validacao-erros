@@ -1,8 +1,13 @@
 package br.com.catolica.criar_conta.model;
 
 import br.com.catolica.criar_conta.contracts.IAutentocacao;
+import br.com.catolica.criar_conta.exceptions.CredenciasInvalidasException;
+import br.com.catolica.criar_conta.exceptions.SenhaInvalidaException;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.Base64;
+import java.util.UUID;
 
 abstract public class Pessoa implements IAutentocacao {
 
@@ -11,6 +16,7 @@ abstract public class Pessoa implements IAutentocacao {
     private String documento;
     private LocalDate dataNascimento;
     private String senha;
+    private boolean logado;
 
     Pessoa(){}
 
@@ -31,10 +37,13 @@ abstract public class Pessoa implements IAutentocacao {
     }
 
     public void setDocumento(String documento){
-        this.documento = documento;
+        String docPesudoOculto = Base64.getEncoder().encodeToString(documento.getBytes());
+        System.out.printf("DOC BASE64: %s\n", docPesudoOculto);
+        this.documento = docPesudoOculto;
     }
 
     public String getDocumento(){
+        String docAberto = Base64.getDecoder().decode(this.documento).toString();
         return this.documento;
     }
 
@@ -47,16 +56,27 @@ abstract public class Pessoa implements IAutentocacao {
     }
 
     public void setSenha(String senha){
-        this.senha = senha;
+        if (senha.length() < 8){
+            throw new SenhaInvalidaException();
+        }
+        this.senha = Base64.getEncoder().encodeToString(senha.getBytes());
+        //this.senha = UUID.fromString(senha).toString();
     }
 
     @Override
     public boolean login(String senha){
-        return false;
+        String senhaOculta = Base64.getEncoder().encodeToString(senha.getBytes());
+        if (this.senha.equals(senhaOculta)){
+            this.logado = true;
+            return true;
+        }
+
+        throw new CredenciasInvalidasException();
     }
 
     @Override
     public boolean logout(){
-        return false;
+        this.logado = false;
+        return true;
     }
 }

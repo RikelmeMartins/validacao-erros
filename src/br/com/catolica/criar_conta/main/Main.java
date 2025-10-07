@@ -1,6 +1,8 @@
 package br.com.catolica.criar_conta.main;
 
 import br.com.catolica.criar_conta.enums.StatusMatricula;
+import br.com.catolica.criar_conta.exceptions.CredenciasInvalidasException;
+import br.com.catolica.criar_conta.exceptions.SenhaInvalidaException;
 import br.com.catolica.criar_conta.exceptions.StatusMatriculaException;
 import br.com.catolica.criar_conta.model.Aluno;
 
@@ -11,6 +13,16 @@ public class Main {
         Scanner entrada = new Scanner(System.in);
         Aluno aluno = new Aluno();
 
+        try {
+            aluno.setDocumento("0000000000");
+            aluno.setSenha("12345678");
+
+            boolean statusLogin = aluno.login("123456789");
+            System.out.println(statusLogin);
+        } catch (SenhaInvalidaException | CredenciasInvalidasException e){
+            System.err.println(e.getMessage());
+        }
+        /*
         System.out.println("Qual status da matricula do aluno? ");
 
         try {
@@ -29,7 +41,8 @@ public class Main {
             System.out.println(aluno.getStatusMatricula());
 
         } catch (StatusMatriculaException e){
-            System.err.println(e.getMessage());
+           System.err.println(e.getMessage());
         }
+         */
     }
 }
